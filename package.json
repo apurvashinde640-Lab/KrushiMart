@@ -1,0 +1,21 @@
+{
+  "name": "krushimitra",
+  "version": "1.0.0",
+  "description": "KrushiMitra - Rural Farmers' Online Marketplace",
+  "type": "module",
+  "scripts": {
+    "dev": "echo 'Static HTML site - open index.html in browser'",
+    "build": "echo 'No build step required for static site'",
+    "lint": "echo 'No linter configured'"
+  },
+  "dependencies": {
+    "@vercel/analytics": "^1.3.1"
+  },
+  "keywords": [
+    "agriculture",
+    "ecommerce",
+    "farmers"
+  ],
+  "author": "KrushiMitra Team",
+  "license": "MIT"
+}
