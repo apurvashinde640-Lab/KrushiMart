@@ -451,64 +451,103 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Filter & Render Catalog Products
-  function filterAndRenderProducts() {
+function filterAndRenderProducts() {
+    if (!productsGrid || typeof KRUSHI_PRODUCTS === "undefined") {
+        return;
+    }
+
+    const query = String(searchQuery || "").toLowerCase().trim();
+
     let filtered = KRUSHI_PRODUCTS.filter(product => {
-      // Category filter
-      if (currentCategory !== "all" && product.category !== currentCategory) {
-        return false;
-      }
-      // Price filter
-      if (product.price > maxPrice) {
-        return false;
-      }
-      // Subsidy filter
-      if (subsidyOnly && !product.subsidyEligible) {
-        return false;
-      }
-      // Search query
-      if (searchQuery.trim() !== "") {
-        const query = searchQuery.toLowerCase().trim();
-        const matchesName = product.name.toLowerCase().includes(query);
-        const matchesHindi = product.hindiName.toLowerCase().includes(query);
-        const matchesCat = product.categoryName.toLowerCase().includes(query);
-        const matchesDesc = product.description.toLowerCase().includes(query);
-        if (!matchesName && !matchesHindi && !matchesCat && !matchesDesc) {
-          return false;
+
+        // Category filter
+        if (
+            currentCategory !== "all" &&
+            product.category !== currentCategory
+        ) {
+            return false;
         }
-      }
-      return true;
+
+        // Price filter
+        if (Number(product.price) > Number(maxPrice)) {
+            return false;
+        }
+
+        // Subsidy filter
+        if (subsidyOnly && !product.subsidyEligible) {
+            return false;
+        }
+
+        // SEARCH FILTER
+        if (query !== "") {
+
+            const searchableText = [
+                product.name,
+                product.hindiName,
+                product.categoryName,
+                product.description,
+                product.category,
+                product.id
+            ]
+                .filter(value => value !== undefined && value !== null)
+                .map(value => String(value).toLowerCase())
+                .join(" ");
+
+            if (!searchableText.includes(query)) {
+                return false;
+            }
+        }
+
+        return true;
     });
 
     // Sorting
     if (sortBy === "price-low") {
-      filtered.sort((a, b) => a.price - b.price);
+        filtered.sort((a, b) => a.price - b.price);
+
     } else if (sortBy === "price-high") {
-      filtered.sort((a, b) => b.price - a.price);
+        filtered.sort((a, b) => b.price - a.price);
+
     } else if (sortBy === "rating") {
-      filtered.sort((a, b) => b.rating - a.rating);
+        filtered.sort((a, b) => b.rating - a.rating);
+
     } else if (sortBy === "discount") {
-      filtered.sort((a, b) => {
-        const discA = (a.originalPrice - a.price) / a.originalPrice;
-        const discB = (b.originalPrice - b.price) / b.originalPrice;
-        return discB - discA;
-      });
+        filtered.sort((a, b) => {
+            const discA =
+                (a.originalPrice - a.price) / a.originalPrice;
+
+            const discB =
+                (b.originalPrice - b.price) / b.originalPrice;
+
+            return discB - discA;
+        });
     }
 
-    // Update active count
+    // Item count
     if (activeCountBadge) {
-      activeCountBadge.textContent = `${filtered.length} Items`;
+        activeCountBadge.textContent = `${filtered.length} Items`;
     }
 
-    // Render cards or empty state
+    // No results
     if (filtered.length === 0) {
-      productsGrid.innerHTML = "";
-      if (emptyState) emptyState.classList.remove("hidden");
-    } else {
-      if (emptyState) emptyState.classList.add("hidden");
-      productsGrid.innerHTML = filtered.map(product => createProductCardHTML(product)).join("");
-    }
-  }
 
+        productsGrid.innerHTML = "";
+
+        if (emptyState) {
+            emptyState.classList.remove("hidden");
+        }
+
+    } else {
+
+        if (emptyState) {
+            emptyState.classList.add("hidden");
+        }
+
+        productsGrid.innerHTML = filtered
+            .map(product => createProductCardHTML(product))
+            .join("");
+    }
+}
   // Dedicated Category Switcher (Fixes class collisions)
   function selectCategory(categoryName, shouldScroll = false) {
     currentCategory = categoryName || "all";
@@ -558,36 +597,116 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Setup Search Listeners with Clear Button
-  function setupSearch() {
-    function handleSearch(val) {
-      searchQuery = val;
-      if (searchInput && searchInput.value !== val) searchInput.value = val;
-      if (mobileSearchInput && mobileSearchInput.value !== val) mobileSearchInput.value = val;
+   // Setup Search Listeners
+function setupSearch() {
 
-      if (clearSearchBtn) {
-        clearSearchBtn.classList.toggle("hidden", val.length === 0);
-      }
-      if (clearMobileSearchBtn) {
-        clearMobileSearchBtn.classList.toggle("hidden", val.length === 0);
-      }
-      filterAndRenderProducts();
+    function handleSearch(value) {
+
+        searchQuery = String(value || "");
+
+        // Keep desktop and mobile search boxes synchronized
+        if (searchInput) {
+            searchInput.value = searchQuery;
+        }
+
+        if (mobileSearchInput) {
+            mobileSearchInput.value = searchQuery;
+        }
+
+        // Show / hide clear button
+        const hasText = searchQuery.trim() !== "";
+
+        if (clearSearchBtn) {
+            clearSearchBtn.classList.toggle("hidden", !hasText);
+        }
+
+        if (clearMobileSearchBtn) {
+            clearMobileSearchBtn.classList.toggle("hidden", !hasText);
+        }
+
+        // IMPORTANT:
+        // Filter products immediately while typing
+        filterAndRenderProducts();
+
+        const catSection = document.getElementById("catalog-section");
+
+if (catSection && searchQuery.trim() !== "") {
+    catSection.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+}
     }
+
+
+    // ==============================
+    // DESKTOP SEARCH
+    // ==============================
 
     if (searchInput) {
-      searchInput.addEventListener("input", (e) => handleSearch(e.target.value));
+
+        searchInput.addEventListener("input", function (event) {
+            handleSearch(event.target.value);
+        });
+
+        searchInput.addEventListener("keydown", function (event) {
+
+            if (event.key === "Enter") {
+
+                event.preventDefault();
+
+                handleSearch(event.target.value);
+            }
+        });
     }
+
+
+    // ==============================
+    // MOBILE SEARCH
+    // ==============================
+
     if (mobileSearchInput) {
-      mobileSearchInput.addEventListener("input", (e) => handleSearch(e.target.value));
+
+        mobileSearchInput.addEventListener("input", function (event) {
+            handleSearch(event.target.value);
+        });
+
+        mobileSearchInput.addEventListener("keydown", function (event) {
+
+            if (event.key === "Enter") {
+
+                event.preventDefault();
+
+                handleSearch(event.target.value);
+            }
+        });
     }
+
+
+    // ==============================
+    // DESKTOP CLEAR BUTTON
+    // ==============================
 
     if (clearSearchBtn) {
-      clearSearchBtn.addEventListener("click", () => handleSearch(""));
-    }
-    if (clearMobileSearchBtn) {
-      clearMobileSearchBtn.addEventListener("click", () => handleSearch(""));
-    }
-  }
 
+        clearSearchBtn.addEventListener("click", function () {
+            handleSearch("");
+        });
+    }
+
+
+    // ==============================
+    // MOBILE CLEAR BUTTON
+    // ==============================
+
+    if (clearMobileSearchBtn) {
+
+        clearMobileSearchBtn.addEventListener("click", function () {
+            handleSearch("");
+        });
+    }
+}
+    
   // Price Slider Listener
   if (priceRange) {
     priceRange.addEventListener("input", (e) => {
@@ -1736,6 +1855,31 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initializations
   setupCategoryButtons();
   setupSearch();
+  console.log("SEARCH SETUP STARTED");
+
+if (searchInput) {
+    searchInput.addEventListener("input", function () {
+        console.log("TYPED:", this.value);
+        searchQuery = this.value;
+        filterAndRenderProducts();
+    });
+} else {
+    console.log("SEARCH INPUT NOT FOUND");
+}
+
+if (searchInput) {
+    searchInput.oninput = function () {
+        searchQuery = this.value;
+        filterAndRenderProducts();
+    };
+}
+
+if (mobileSearchInput) {
+    mobileSearchInput.oninput = function () {
+        searchQuery = this.value;
+        filterAndRenderProducts();
+    };
+}
   renderFlashDeals();
   filterAndRenderProducts();
   updateCartUI();
