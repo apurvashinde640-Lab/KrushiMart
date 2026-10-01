@@ -267,7 +267,7 @@ const KRUSHI_PRODUCTS = [
     originalPrice: 3800,
     rating: 4.7,
     reviewsCount: 560,
-    image: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80",
+    image: "https://media.istockphoto.com/id/1161402908/photo/portable-diesel-generator-on-the-wheels.jpg?s=612x612&w=0&k=20&c=dZ6d5nH-vQgDbZ9xiG0lBM96bTxm3JcnmcKNEOoc03E=",
     badge: "Top Rated",
     badgeType: "bestseller",
     subsidyEligible: false,
