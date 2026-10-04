@@ -244,3 +244,86 @@ h1, h2, h3, h4, .font-heading {
     display: none !important;
   }
 }
+/* ================= MOBILE RESPONSIVE FIX ================= */
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+* {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+img,
+video,
+iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 768px) {
+
+  body {
+    width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  main,
+  header,
+  section,
+  nav,
+  footer,
+  .container {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .max-w-7xl,
+  .max-w-6xl,
+  .max-w-5xl {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  h1,
+  h2,
+  h3,
+  p {
+    max-width: 100%;
+    overflow-wrap: break-word;
+  }
+
+  .flex,
+  .grid {
+    max-width: 100%;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    max-width: 100%;
+  }
+}
+
+/* Prevent any element from creating horizontal page overflow */
+@media (max-width: 640px) {
+  html,
+  body {
+    overflow-x: hidden !important;
+  }
+
+  #root,
+  #app,
+  main {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
